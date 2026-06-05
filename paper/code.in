@@ -148,49 +148,27 @@ output \
        ust.prob
 
 
-# ============================================================
-# 1) Equilibrium / pure structure check
-# ============================================================
-
 solve init
 
-save outf=ga2o3_half_structure_equilibrium.str
-tonyplot ga2o3_half_structure_equilibrium.str
-
-
-# ============================================================
-# 2) Off-state physics check
-# Vg = 0 V, Vd = 5 V
-# This is not an Id curve; only one saved operating point.
-# ============================================================
-
-solve init
-solve name=drain vdrain=0.1
-solve name=drain vdrain=1.0
-solve name=drain vdrain=5.0
-
-save outf=ga2o3_half_off_vg0_vd5_physics.str
-tonyplot ga2o3_half_off_vg0_vd5_physics.str
-
-
-# ============================================================
-# 3) On-state physics check
-# Vg = 3 V, Vd = 5 V
-# This is not an Id curve; only one saved operating point.
-# ============================================================
-
-solve init
 solve name=gate vgate=0.5
 solve name=gate vgate=1.0
 solve name=gate vgate=2.0
 solve name=gate vgate=3.0
+solve name=gate vgate=4.0
+solve name=gate vgate=5.0
 
 solve name=drain vdrain=0.1
 solve name=drain vdrain=1.0
+solve name=drain vdrain=3.0
+save outf=ga2o3_half_vg5_vd3.str
+
 solve name=drain vdrain=5.0
+save outf=ga2o3_half_vg5_vd5.str
 
-save outf=ga2o3_half_on_vg3_vd5_physics.str
-tonyplot ga2o3_half_on_vg3_vd5_physics.str
+solve name=drain vdrain=7.0
+save outf=ga2o3_half_vg5_vd7.str
 
+solve name=drain vdrain=10.0
+save outf=ga2o3_half_vg5_vd10.str
 
 quit
