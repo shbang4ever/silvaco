@@ -1,0 +1,196 @@
+go atlas
+
+# ============================================================
+# Half-structure version
+# Gate-overlapped Schottky-source MOS-gate-controlled
+# vertical beta-Ga2O3 device
+# TonyPlot structure / physics check version
+# Symmetry plane: x = 2.2 um
+# No Id-Vd curve calculation
+# ============================================================
+
+
+# ============================================================
+# Mesh
+# ============================================================
+
+mesh space.mult=1.0
+
+# x mesh: left half only
+x.mesh loc=0.0   spac=0.10
+x.mesh loc=0.5   spac=0.03
+x.mesh loc=1.3   spac=0.01
+x.mesh loc=1.5   spac=0.005
+x.mesh loc=2.2   spac=0.03
+
+# y mesh
+y.mesh loc=-0.05 spac=0.005
+y.mesh loc=0.0   spac=0.003
+y.mesh loc=0.05  spac=0.005
+y.mesh loc=0.20  spac=0.02
+y.mesh loc=1.0   spac=0.10
+y.mesh loc=5.0   spac=0.05
+y.mesh loc=5.5   spac=0.05
+
+
+# ============================================================
+# Region definition
+# ============================================================
+
+# n- beta-Ga2O3 drift region
+region num=1 material=GA2O3_BETA \
+       x.min=0.0 x.max=2.2 \
+       y.min=0.0 y.max=5.0
+
+# n+ beta-Ga2O3 drain region
+region num=2 material=GA2O3_BETA \
+       x.min=0.0 x.max=2.2 \
+       y.min=5.0 y.max=5.5
+
+# High-k / oxide layer on the top surface
+region num=3 material=SiO2 \
+       x.min=0.0 x.max=2.2 \
+       y.min=-0.05 y.max=0.0
+
+
+# ============================================================
+# Electrodes
+# ============================================================
+
+# Left Schottky source contact only
+electrode name=source \
+          x.min=0.5 x.max=1.5 \
+          y.min=0.0 y.max=0.0
+
+# Half MOS gate electrode on top of oxide
+# Original gate: x = 1.3 to 3.1
+# Half gate:     x = 1.3 to 2.2
+electrode name=gate \
+          x.min=1.3 x.max=2.2 \
+          y.min=-0.05 y.max=-0.05
+
+# Bottom drain electrode
+electrode name=drain bottom
+
+
+# ============================================================
+# Doping
+# ============================================================
+
+# n- drift layer
+doping uniform concentration=2e16 n.type region=1
+
+# n+ drain layer
+doping uniform concentration=2e18 n.type region=2
+
+
+# ============================================================
+# Material parameters
+# ============================================================
+
+# High-k oxide region
+material region=3 permittivity=9.0
+
+# beta-Ga2O3 drift region
+material region=1 \
+         eg300=4.80 affinity=4.00 permittivity=10.0 \
+         mun=200 mup=1 \
+         nc300=3.72e18 nv300=3.72e18 \
+         taun0=1e-8 taup0=1e-8 \
+         me.tunnel=0.28 mh.tunnel=0.28 d.tunnel=1e-6
+
+# beta-Ga2O3 n+ drain region
+material region=2 \
+         eg300=4.80 affinity=4.00 permittivity=10.0 \
+         mun=200 mup=1 \
+         nc300=3.72e18 nv300=3.72e18 \
+         taun0=1e-8 taup0=1e-8 \
+         me.tunnel=0.28 mh.tunnel=0.28 d.tunnel=1e-6
+
+
+# ============================================================
+# Contact properties
+# ============================================================
+
+# Schottky source contact
+# surf.rec  -> Schottky thermionic-emission boundary physics
+# barrier   -> image-force Schottky barrier lowering
+contact name=source workfun=5.15 surf.rec barrier
+
+# MOS gate metal
+contact name=gate workfun=5.00
+
+# Ohmic drain contact
+contact name=drain resistance=1e-6
+
+
+# ============================================================
+# Physical models and TonyPlot outputs
+# ============================================================
+
+# UST     -> Universal Schottky Tunneling
+# UST.BL  -> include barrier lowering in UST tunneling calculation
+models srh fermi ust ust.bl temperature=300 print
+
+method newton autonr maxtrap=10
+
+# Output variables for TonyPlot interpretation
+output \
+       con.band val.band band.param \
+       e.field ex.field ey.field \
+       e.mobility h.mobility \
+       e.velocity h.velocity \
+       j.electron j.hole j.total \
+       jx.electron jy.electron \
+       jx.hole jy.hole \
+       jx.total jy.total \
+       flowlines \
+       ust.prob
+
+
+# ============================================================
+# 1) Equilibrium / pure structure check
+# ============================================================
+
+solve init
+
+save outf=ga2o3_half_structure_equilibrium.str
+tonyplot ga2o3_half_structure_equilibrium.str
+
+
+# ============================================================
+# 2) Off-state physics check
+# Vg = 0 V, Vd = 5 V
+# This is not an Id curve; only one saved operating point.
+# ============================================================
+
+solve init
+solve name=drain vdrain=0.1
+solve name=drain vdrain=1.0
+solve name=drain vdrain=5.0
+
+save outf=ga2o3_half_off_vg0_vd5_physics.str
+tonyplot ga2o3_half_off_vg0_vd5_physics.str
+
+
+# ============================================================
+# 3) On-state physics check
+# Vg = 3 V, Vd = 5 V
+# This is not an Id curve; only one saved operating point.
+# ============================================================
+
+solve init
+solve name=gate vgate=0.5
+solve name=gate vgate=1.0
+solve name=gate vgate=2.0
+solve name=gate vgate=3.0
+
+solve name=drain vdrain=0.1
+solve name=drain vdrain=1.0
+solve name=drain vdrain=5.0
+
+save outf=ga2o3_half_on_vg3_vd5_physics.str
+tonyplot ga2o3_half_on_vg3_vd5_physics.str
+
+
+quit
