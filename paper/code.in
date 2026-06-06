@@ -80,6 +80,13 @@ electrode name=drain bottom
 # n- drift layer
 doping uniform concentration=2e16 n.type region=1
 
+# n+ source region under Schottky source contact
+# Source electrode: x = 0.5 to 1.5, y = 0
+# Depth example: 0.05 um = 50 nm
+doping uniform concentration=1e19 n.type region=1 \
+       x.min=1.4 x.max=1.5 \
+       y.min=0.0 y.max=0.03
+
 # n+ drain layer
 doping uniform concentration=2e18 n.type region=2
 
@@ -147,28 +154,116 @@ output \
        flowlines \
        ust.prob
 
+# ============================================================
+# Id-Vd sweep
+# VG = 1 V to 5 V
+# VD = 0 V to 10 V
+# ============================================================
 
+# ----------------------------
+# VG = 1 V
+# ----------------------------
 solve init
 
 solve name=gate vgate=0.5
 solve name=gate vgate=1.0
+
+solve name=drain vdrain=0.0
+
+log outf=IdVd_VG1.log
+solve name=drain vdrain=0.1
+solve name=drain vstep=0.1 vfinal=10.0
+log off
+
+
+# ----------------------------
+# VG = 2 V
+# ----------------------------
+solve init
+
+solve name=gate vgate=0.5
+solve name=gate vgate=1.0
+solve name=gate vgate=1.5
 solve name=gate vgate=2.0
+
+solve name=drain vdrain=0.0
+
+log outf=IdVd_VG2.log
+solve name=drain vdrain=0.1
+solve name=drain vstep=0.1 vfinal=10.0
+log off
+
+
+# ----------------------------
+# VG = 3 V
+# ----------------------------
+solve init
+
+solve name=gate vgate=0.5
+solve name=gate vgate=1.0
+solve name=gate vgate=1.5
+solve name=gate vgate=2.0
+solve name=gate vgate=2.5
 solve name=gate vgate=3.0
+
+solve name=drain vdrain=0.0
+
+log outf=IdVd_VG3.log
+solve name=drain vdrain=0.1
+solve name=drain vstep=0.1 vfinal=10.0
+log off
+
+
+# ----------------------------
+# VG = 4 V
+# ----------------------------
+solve init
+
+solve name=gate vgate=0.5
+solve name=gate vgate=1.0
+solve name=gate vgate=1.5
+solve name=gate vgate=2.0
+solve name=gate vgate=2.5
+solve name=gate vgate=3.0
+solve name=gate vgate=3.5
 solve name=gate vgate=4.0
+
+solve name=drain vdrain=0.0
+
+log outf=IdVd_VG4.log
+solve name=drain vdrain=0.1
+solve name=drain vstep=0.1 vfinal=10.0
+log off
+
+
+# ----------------------------
+# VG = 5 V
+# ----------------------------
+solve init
+
+solve name=gate vgate=0.5
+solve name=gate vgate=1.0
+solve name=gate vgate=1.5
+solve name=gate vgate=2.0
+solve name=gate vgate=2.5
+solve name=gate vgate=3.0
+solve name=gate vgate=3.5
+solve name=gate vgate=4.0
+solve name=gate vgate=4.5
 solve name=gate vgate=5.0
 
+solve name=drain vdrain=0.0
+
+log outf=IdVd_VG5.log
 solve name=drain vdrain=0.1
-solve name=drain vdrain=1.0
-solve name=drain vdrain=3.0
-save outf=ga2o3_half_vg5_vd3.str
+solve name=drain vstep=0.1 vfinal=10.0
+log off
 
-solve name=drain vdrain=5.0
-save outf=ga2o3_half_vg5_vd5.str
 
-solve name=drain vdrain=7.0
-save outf=ga2o3_half_vg5_vd7.str
+# ============================================================
+# Overlay all Id-Vd curves in TonyPlot
+# ============================================================
 
-solve name=drain vdrain=10.0
-save outf=ga2o3_half_vg5_vd10.str
+tonyplot -overlay IdVd_VG1.log IdVd_VG2.log IdVd_VG3.log IdVd_VG4.log IdVd_VG5.log
 
 quit
