@@ -6,7 +6,7 @@ go atlas
 # vertical beta-Ga2O3 device
 # TonyPlot structure / physics check version
 # Symmetry plane: x = 2.2 um
-# No Id-Vd curve calculation
+# Oxide thickness = 20 nm
 # ============================================================
 
 
@@ -24,13 +24,17 @@ x.mesh loc=1.5   spac=0.005
 x.mesh loc=2.2   spac=0.03
 
 # y mesh
-y.mesh loc=-0.05 spac=0.005
-y.mesh loc=0.0   spac=0.003
-y.mesh loc=0.05  spac=0.005
-y.mesh loc=0.20  spac=0.02
-y.mesh loc=1.0   spac=0.10
-y.mesh loc=5.0   spac=0.05
-y.mesh loc=5.5   spac=0.05
+# Oxide thickness is now 20 nm = 0.02 um
+# Use fine mesh inside oxide and near Ga2O3/oxide interface
+y.mesh loc=-0.020 spac=0.002
+y.mesh loc=-0.010 spac=0.002
+y.mesh loc=0.000  spac=0.002
+y.mesh loc=0.020  spac=0.003
+y.mesh loc=0.050  spac=0.005
+y.mesh loc=0.200  spac=0.02
+y.mesh loc=1.000  spac=0.10
+y.mesh loc=5.000  spac=0.05
+y.mesh loc=5.500  spac=0.05
 
 
 # ============================================================
@@ -48,9 +52,10 @@ region num=2 material=GA2O3_BETA \
        y.min=5.0 y.max=5.5
 
 # High-k / oxide layer on the top surface
+# 20 nm oxide: y = -0.02 um to 0.0 um
 region num=3 material=SiO2 \
        x.min=0.0 x.max=2.2 \
-       y.min=-0.05 y.max=0.0
+       y.min=-0.02 y.max=0.0
 
 
 # ============================================================
@@ -65,9 +70,10 @@ electrode name=source \
 # Half MOS gate electrode on top of oxide
 # Original gate: x = 1.3 to 3.1
 # Half gate:     x = 1.3 to 2.2
+# Gate is now located at y = -0.02 um because oxide thickness is 20 nm
 electrode name=gate \
           x.min=1.3 x.max=2.2 \
-          y.min=-0.05 y.max=-0.05
+          y.min=-0.02 y.max=-0.02
 
 # Bottom drain electrode
 electrode name=drain bottom
@@ -115,7 +121,7 @@ material region=2 \
 # Schottky source contact
 # surf.rec  -> Schottky thermionic-emission boundary physics
 # barrier   -> image-force Schottky barrier lowering
-contact name=source workfun=5.15 surf.rec barrier
+contact name=source workfun=4.8 surf.rec barrier
 
 # MOS gate metal
 contact name=gate workfun=5.00
@@ -148,8 +154,6 @@ output \
        ust.prob
 
 
-
-
 # ============================================================
 # 0. Initial equilibrium structure for TonyPlot
 # ============================================================
@@ -157,14 +161,13 @@ output \
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-save outf=Ga2O3_half_equilibrium.str
+save outf=Ga2O3_half_TOX20nm_equilibrium.str
 
 
 # ============================================================
 # 1. Id - Vg simulation
 # Vg = 0 to 10 V
 # Fixed Vd = 1 V
-# You can change Vd to 0.1, 5, or 15 V if needed
 # ============================================================
 
 solve init
@@ -176,7 +179,7 @@ solve vdrain=0.1
 solve vdrain=0.5
 solve vdrain=1.0
 
-log outf=IDVG_VD1V.log
+log outf=IDVG_TOX20nm_VD1V.log
 
 # Gate sweep: Vg = 0 to 10 V
 solve vgate=0.0 vstep=0.2 vfinal=10.0 name=gate
@@ -184,7 +187,7 @@ solve vgate=0.0 vstep=0.2 vfinal=10.0 name=gate
 log off
 
 # Save final on-state structure
-save outf=Ga2O3_half_IDVG_VD1V_VG10V.str
+save outf=Ga2O3_half_TOX20nm_IDVG_VD1V_VG10V.str
 
 
 # ============================================================
@@ -202,13 +205,13 @@ save outf=Ga2O3_half_IDVG_VD1V_VG10V.str
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-log outf=IDVD_VG0V.log
+log outf=IDVD_TOX20nm_VG0V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG0V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG0V_VD15V.str
 
 
 # ------------------------------------------------------------
@@ -221,13 +224,13 @@ solve vsource=0 vgate=0 vdrain=0
 # Ramp gate first
 solve vgate=0.0 vstep=0.5 vfinal=2.0 name=gate
 
-log outf=IDVD_VG2V.log
+log outf=IDVD_TOX20nm_VG2V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG2V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG2V_VD15V.str
 
 
 # ------------------------------------------------------------
@@ -239,13 +242,13 @@ solve vsource=0 vgate=0 vdrain=0
 
 solve vgate=0.0 vstep=0.5 vfinal=4.0 name=gate
 
-log outf=IDVD_VG4V.log
+log outf=IDVD_TOX20nm_VG4V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG4V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG4V_VD15V.str
 
 
 # ------------------------------------------------------------
@@ -257,13 +260,13 @@ solve vsource=0 vgate=0 vdrain=0
 
 solve vgate=0.0 vstep=0.5 vfinal=6.0 name=gate
 
-log outf=IDVD_VG6V.log
+log outf=IDVD_TOX20nm_VG6V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG6V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG6V_VD15V.str
 
 
 # ------------------------------------------------------------
@@ -275,13 +278,13 @@ solve vsource=0 vgate=0 vdrain=0
 
 solve vgate=0.0 vstep=0.5 vfinal=8.0 name=gate
 
-log outf=IDVD_VG8V.log
+log outf=IDVD_TOX20nm_VG8V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG8V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG8V_VD15V.str
 
 
 # ------------------------------------------------------------
@@ -293,13 +296,13 @@ solve vsource=0 vgate=0 vdrain=0
 
 solve vgate=0.0 vstep=0.5 vfinal=10.0 name=gate
 
-log outf=IDVD_VG10V.log
+log outf=IDVD_TOX20nm_VG10V.log
 
 solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
 
 log off
 
-save outf=Ga2O3_half_IDVD_VG10V_VD15V.str
+save outf=Ga2O3_half_TOX20nm_IDVD_VG10V_VD15V.str
 
 
 # ============================================================
@@ -307,16 +310,16 @@ save outf=Ga2O3_half_IDVD_VG10V_VD15V.str
 # ============================================================
 
 # Id - Vg curve
-tonyplot IDVG_VD1V.log
+tonyplot IDVG_TOX20nm_VD1V.log
 
 # Id - Vd overlay
-tonyplot -overlay IDVD_VG0V.log IDVD_VG2V.log IDVD_VG4V.log IDVD_VG6V.log IDVD_VG8V.log IDVD_VG10V.log
+tonyplot -overlay IDVD_TOX20nm_VG0V.log IDVD_TOX20nm_VG2V.log IDVD_TOX20nm_VG4V.log IDVD_TOX20nm_VG6V.log IDVD_TOX20nm_VG8V.log IDVD_TOX20nm_VG10V.log
 
 # Structure files for TonyPlot
-tonyplot Ga2O3_half_equilibrium.str
-tonyplot Ga2O3_half_IDVG_VD1V_VG10V.str
-tonyplot Ga2O3_half_IDVD_VG0V_VD15V.str
-tonyplot Ga2O3_half_IDVD_VG10V_VD15V.str
+tonyplot Ga2O3_half_TOX20nm_equilibrium.str
+tonyplot Ga2O3_half_TOX20nm_IDVG_VD1V_VG10V.str
+tonyplot Ga2O3_half_TOX20nm_IDVD_VG0V_VD15V.str
+tonyplot Ga2O3_half_TOX20nm_IDVD_VG10V_VD15V.str
 
 
 # ============================================================
