@@ -1,13 +1,24 @@
 go atlas
 
 # ============================================================
-# Full simulation version
-# Half-structure version
-# Oxide thickness everywhere = 20 nm = 0.02 um
-# Source mesa / local n- height = 50 nm = 0.05 um
-# Main n- drift thickness = 4.95 um
-# Total n- thickness = 5.00 um
-# Symmetry plane: x = 2.2 um
+# Operating-point simulation version
+# New wrapped-oxide device
+#
+# Purpose:
+#   1. Output curve:   Id-Vd at fixed Vg = 7 V
+#   2. Transfer curve: Id-Vg at fixed Vd = 6 V
+#
+# Gain target:
+#   gm = dId/dVg from Id-Vg at Vd = 6 V
+#   gd = dId/dVd from Id-Vd at Vg = 7 V
+#   gain = gm/gd at Vg = 7 V, Vd = 6 V
+#
+# Geometry:
+#   Oxide thickness everywhere = 20 nm = 0.02 um
+#   Source mesa / local n- height = 50 nm = 0.05 um
+#   Main n- drift thickness = 4.95 um
+#   Total n- thickness = 5.00 um
+#   Symmetry plane: x = 2.2 um
 # ============================================================
 
 
@@ -111,7 +122,6 @@ electrode name=source \
           y.min=0.00 y.max=0.00
 
 # Wrapped / stepped gate electrode
-# Same name means electrically connected gate pieces.
 
 # Gate on top oxide
 electrode name=gate \
@@ -192,7 +202,6 @@ material region=3 \
 
 # Schottky source contact
 # Current setting = 4.8 eV
-# For professor's high-barrier condition, change to 5.15 eV.
 contact name=source workfun=4.8 surf.rec barrier
 
 # MOS gate metal
@@ -206,8 +215,6 @@ contact name=drain resistance=1e-6
 # Physical models and TonyPlot outputs
 # ============================================================
 
-# UST     = Universal Schottky Tunneling
-# UST.BL  = Barrier lowering for UST
 models srh fermi ust ust.bl temperature=300 print
 
 method newton autonr maxtrap=10
@@ -232,170 +239,65 @@ output \
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_equilibrium.str
-
+save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_equilibrium.str
 
 # ============================================================
-# 1. Id - Vg simulation
-# Vg = 0 to 10 V
-# Fixed Vd = 1 V
+# 1. Output curve for gd extraction
+# Id - Vd at fixed Vg = 5.6 V
+# Vd = 0 to 15 V
 # ============================================================
 
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-# Ramp drain first for stable convergence
+# Ramp gate to operating gate bias
+solve vgate=0.0 vstep=0.2 vfinal=5.6 name=gate
+
+log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG5p6V.log
+
+# Drain sweep
+solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
+
+log off
+
+save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG5p6V_VD15V.str
+
+# ============================================================
+# 3. Optional operating-point structure
+# Bias: Vg = 5.6 V, Vd = 6 V
+# Use this for electric field / current density check
+# ============================================================
+
+solve init
+solve vsource=0 vgate=0 vdrain=0
+
 solve vdrain=0.01
 solve vdrain=0.1
 solve vdrain=0.5
 solve vdrain=1.0
+solve vdrain=2.0
+solve vdrain=4.0
+solve vdrain=6.0
 
-log outf=IDVG_MESA50nm_TOX20nm_WRAP_VD1V.log
+solve vgate=0.0 vstep=0.2 vfinal=5.6 name=gate
 
-solve vgate=0.0 vstep=0.2 vfinal=10.0 name=gate
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVG_VD1V_VG10V.str
-
+save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_VG5p6V_VD6V.str
 
 # ============================================================
-# 2. Id - Vd simulation
-# Vd = 0 to 15 V
-# Vg = 0, 2, 4, 6, 8, 10 V
-# Separate log files for TonyPlot overlay
-# ============================================================
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 0 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG0V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG0V_VD15V.str
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 2 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.0 vstep=0.5 vfinal=2.0 name=gate
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG2V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG2V_VD15V.str
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 4 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.0 vstep=0.5 vfinal=4.0 name=gate
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG4V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG4V_VD15V.str
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 6 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.0 vstep=0.5 vfinal=6.0 name=gate
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG6V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG6V_VD15V.str
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 8 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.0 vstep=0.5 vfinal=8.0 name=gate
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG8V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG8V_VD15V.str
-
-
-# ------------------------------------------------------------
-# Id - Vd at Vg = 10 V
-# ------------------------------------------------------------
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.0 vstep=0.5 vfinal=10.0 name=gate
-
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG10V.log
-
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG10V_VD15V.str
-
-
-# ============================================================
-# 3. TonyPlot commands
+# 4. TonyPlot commands
 # ============================================================
 
 # Structure check
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_equilibrium.str
+tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_equilibrium.str
 
-# Id - Vg curve
-tonyplot IDVG_MESA50nm_TOX20nm_WRAP_VD1V.log
+# Output curve at Vg = 5.6 V
+tonyplot IDVD_MESA50nm_TOX20nm_WRAP_VG5p6V.log
 
-# Id - Vd overlay
-tonyplot -overlay \
-IDVD_MESA50nm_TOX20nm_WRAP_VG0V.log \
-IDVD_MESA50nm_TOX20nm_WRAP_VG2V.log \
-IDVD_MESA50nm_TOX20nm_WRAP_VG4V.log \
-IDVD_MESA50nm_TOX20nm_WRAP_VG6V.log \
-IDVD_MESA50nm_TOX20nm_WRAP_VG8V.log \
-IDVD_MESA50nm_TOX20nm_WRAP_VG10V.log
+# Transfer curve at Vd = 6 V
+tonyplot IDVG_MESA50nm_TOX20nm_WRAP_VD6V.log
 
-# Final state structures
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVG_VD1V_VG10V.str
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG0V_VD15V.str
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG10V_VD15V.str
+# Operating-point structure
+tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_VG5p6V_VD6V.str
 
 
 # ============================================================
