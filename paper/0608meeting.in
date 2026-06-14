@@ -230,74 +230,41 @@ output \
        jx.total jy.total \
        flowlines \
        ust.prob
-
-
 # ============================================================
-# 0. Initial equilibrium structure
-# ============================================================
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_equilibrium.str
-
-# ============================================================
-# 1. Output curve for gd extraction
-# Id - Vd at fixed Vg = 5.6 V
-# Vd = 0 to 15 V
+# Off-state drain sweep up to 1 kV
+# Vg = 0 V, Source = 0 V
+# Stop if Id reaches 1 uA
 # ============================================================
 
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-# Ramp gate to operating gate bias
-solve vgate=0.0 vstep=0.2 vfinal=5.6 name=gate
+log outf=BV_WRAP_OFFSTATE_VG0V_until_1kV_1uA.log
 
-log outf=IDVD_MESA50nm_TOX20nm_WRAP_VG5p6V.log
-
-# Drain sweep
-solve vdrain=0.0 vstep=0.1 vfinal=15.0 name=drain
-
-log off
-
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_IDVD_VG5p6V_VD15V.str
-
-# ============================================================
-# 3. Optional operating-point structure
-# Bias: Vg = 5.6 V, Vd = 6 V
-# Use this for electric field / current density check
-# ============================================================
-
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
+# Stable initial ramp
 solve vdrain=0.01
 solve vdrain=0.1
 solve vdrain=0.5
 solve vdrain=1.0
 solve vdrain=2.0
-solve vdrain=4.0
-solve vdrain=6.0
+solve vdrain=5.0
+solve vdrain=10.0
 
-solve vgate=0.0 vstep=0.2 vfinal=5.6 name=gate
+# Low-to-medium voltage sweep
+solve vdrain=10.0  vstep=10.0 vfinal=100.0 name=drain
 
-save outf=Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_VG5p6V_VD6V.str
+# Medium voltage sweep
+solve vdrain=100.0 vstep=25.0 vfinal=500.0 name=drain compl=1e-6 cname=drain
 
-# ============================================================
-# 4. TonyPlot commands
-# ============================================================
+# High voltage sweep up to 1 kV
+solve vdrain=500.0 vstep=50.0 vfinal=1000.0 name=drain compl=1e-6 cname=drain
 
-# Structure check
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_equilibrium.str
+log off
 
-# Output curve at Vg = 5.6 V
-tonyplot IDVD_MESA50nm_TOX20nm_WRAP_VG5p6V.log
+save outf=Ga2O3_WRAP_BV_OFFSTATE_VG0V_1kV_1uA_FINAL.str
 
-# Transfer curve at Vd = 6 V
-tonyplot IDVG_MESA50nm_TOX20nm_WRAP_VD6V.log
-
-# Operating-point structure
-tonyplot Ga2O3_half_MESA50nm_TOX20nm_WRAP_OP_VG5p6V_VD6V.str
+tonyplot BV_WRAP_OFFSTATE_VG0V_until_1kV_1uA.log
+tonyplot Ga2O3_WRAP_BV_OFFSTATE_VG0V_1kV_1uA_FINAL.str
 
 
 # ============================================================
