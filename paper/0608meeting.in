@@ -230,43 +230,47 @@ output \
        jx.total jy.total \
        flowlines \
        ust.prob
+
+
 # ============================================================
-# Off-state drain sweep up to 1 kV
-# Vg = 0 V, Source = 0 V
-# Stop if Id reaches 1 uA
+# Small-signal capacitance extraction
+# Bias point: Vd = 6 V, Vg = 5.6 V, Vs = 0 V
 # ============================================================
 
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-log outf=BV_WRAP_OFFSTATE_VG0V_until_1kV_1uA.log
-
-# Stable initial ramp
-solve vdrain=0.01
+# Ramp drain to 6 V
 solve vdrain=0.1
 solve vdrain=0.5
 solve vdrain=1.0
 solve vdrain=2.0
-solve vdrain=5.0
-solve vdrain=10.0
+solve vdrain=4.0
+solve vdrain=6.0
 
-# Low-to-medium voltage sweep
-solve vdrain=10.0  vstep=10.0 vfinal=100.0 name=drain
+# Ramp gate to 5.6 V
+solve vgate=0.5
+solve vgate=1.0
+solve vgate=2.0
+solve vgate=3.0
+solve vgate=4.0
+solve vgate=5.0
+solve vgate=5.6
 
-# Medium voltage sweep
-solve vdrain=100.0 vstep=25.0 vfinal=500.0 name=drain compl=1e-6 cname=drain
-
-# High voltage sweep up to 1 kV
-solve vdrain=500.0 vstep=50.0 vfinal=1000.0 name=drain compl=1e-6 cname=drain
-
+# AC small-signal calculation at fixed DC bias
+log outf=CAP_VD6_VG5p6.log
+solve ac freq=1e6
 log off
 
-save outf=Ga2O3_WRAP_BV_OFFSTATE_VG0V_1kV_1uA_FINAL.str
+# Extract capacitances from AC log
+extract init infile="CAP_VD6_VG5p6.log"
 
-tonyplot BV_WRAP_OFFSTATE_VG0V_until_1kV_1uA.log
-tonyplot Ga2O3_WRAP_BV_OFFSTATE_VG0V_1kV_1uA_FINAL.str
+extract name="Cgs_VD6_VG5p6" max(curve(frequency, C."gate""source"))
+extract name="Cgd_VD6_VG5p6" max(curve(frequency, C."gate""drain"))
+extract name="Cgg_VD6_VG5p6" max(curve(frequency, C."gate""gate"))
 
-
+save outf=Ga2O3_WRAP_CAP_VD6_VG5p6.str
+tonyplot CAP_VD6_VG5p6.log
 # ============================================================
 # End simulation
 # ============================================================
