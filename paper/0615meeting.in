@@ -6,9 +6,9 @@ go atlas
 #
 # Modified:
 #   1. Local n- source mesa thickness = 20 nm = 0.02 um
-#   2. Output curve:
-#        Vd = 0 to 15 V
-#        Vg = 0 to 10 V, step = 2 V
+#   2. Transfer curve:
+#        Vd = 15 V fixed
+#        Vg = 0 to 10 V
 #
 # Geometry:
 #   Oxide thickness everywhere = 20 nm = 0.02 um
@@ -228,129 +228,37 @@ output \
 
 
 # ============================================================
-# Output curve simulation
-# Vd = 0 to 15 V
-# Vg = 0, 2, 4, 6, 8, 10 V
+# Transfer curve simulation
+# Fixed Vd = 15 V
+# Sweep Vg = 0 to 10 V
 # ============================================================
 
-
-# ---------- Vg = 0 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-log outf=IDVD_H20_VG0.log
+# Ramp drain voltage first to avoid convergence problem
+solve vdrain=0.01
+solve vdrain=0.1
+solve vdrain=0.5
+solve name=drain vdrain=1.0 vstep=0.5 vfinal=15.0
 
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+# Log only the transfer curve data
+log outf=IDVG_H20_VD15.log
 
-log off
+# Save first point at Vg = 0 V, Vd = 15 V
+solve vgate=0.0
 
-
-# ---------- Vg = 2 V ----------
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-
-log outf=IDVD_H20_VG2.log
-
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
-
-log off
-
-
-# ---------- Vg = 4 V ----------
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-solve vgate=3.0
-solve vgate=4.0
-
-log outf=IDVD_H20_VG4.log
-
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
-
-log off
-
-
-# ---------- Vg = 6 V ----------
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-solve vgate=3.0
-solve vgate=4.0
-solve vgate=5.0
-solve vgate=6.0
-
-log outf=IDVD_H20_VG6.log
-
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
-
-log off
-
-
-# ---------- Vg = 8 V ----------
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-solve vgate=3.0
-solve vgate=4.0
-solve vgate=5.0
-solve vgate=6.0
-solve vgate=7.0
-solve vgate=8.0
-
-log outf=IDVD_H20_VG8.log
-
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
-
-log off
-
-
-# ---------- Vg = 10 V ----------
-solve init
-solve vsource=0 vgate=0 vdrain=0
-
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-solve vgate=3.0
-solve vgate=4.0
-solve vgate=5.0
-solve vgate=6.0
-solve vgate=7.0
-solve vgate=8.0
-solve vgate=9.0
-solve vgate=10.0
-
-log outf=IDVD_H20_VG10.log
-
-solve vdrain=0.0
-solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+# Sweep gate voltage
+solve name=gate vgate=0.1 vstep=0.1 vfinal=10.0
 
 log off
 
 
 # ============================================================
-# Plot all output curves together
+# Plot transfer curve
 # ============================================================
 
-tonyplot IDVD_H20_VG0.log IDVD_H20_VG2.log IDVD_H20_VG4.log IDVD_H20_VG6.log IDVD_H20_VG8.log IDVD_H20_VG10.log
+tonyplot IDVG_H20_VD15.log
 
 
 # ============================================================
