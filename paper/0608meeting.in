@@ -2,23 +2,13 @@ go atlas
 
 # ============================================================
 # Operating-point simulation version
-# New wrapped-oxide device
+# Wrapped-oxide device
 #
-# Purpose:
-#   1. Output curve:   Id-Vd at fixed Vg = 7 V
-#   2. Transfer curve: Id-Vg at fixed Vd = 6 V
-#
-# Gain target:
-#   gm = dId/dVg from Id-Vg at Vd = 6 V
-#   gd = dId/dVd from Id-Vd at Vg = 7 V
-#   gain = gm/gd at Vg = 7 V, Vd = 6 V
-#
-# Geometry:
-#   Oxide thickness everywhere = 20 nm = 0.02 um
-#   Source mesa / local n- height = 50 nm = 0.05 um
-#   Main n- drift thickness = 4.95 um
-#   Total n- thickness = 5.00 um
-#   Symmetry plane: x = 2.2 um
+# Modified:
+#   1. Local n- source mesa thickness = 40 nm = 0.04 um
+#   2. Output curve:
+#        Vd = 0 to 15 V
+#        Vg = 0 to 10 V, step = 2 V
 # ============================================================
 
 
@@ -42,8 +32,8 @@ y.mesh loc=-0.020 spac=0.002
 y.mesh loc=-0.010 spac=0.002
 y.mesh loc=0.000  spac=0.002
 y.mesh loc=0.010  spac=0.002
-y.mesh loc=0.030  spac=0.002
-y.mesh loc=0.050  spac=0.002
+y.mesh loc=0.020  spac=0.002
+y.mesh loc=0.040  spac=0.002
 y.mesh loc=0.100  spac=0.01
 y.mesh loc=0.200  spac=0.02
 y.mesh loc=1.000  spac=0.10
@@ -55,15 +45,15 @@ y.mesh loc=5.500  spac=0.05
 # Region definition
 # ============================================================
 
-# Local n- source mesa: 50 nm height
+# Local n- source mesa: 40 nm height
 region num=1 material=GA2O3_BETA \
        x.min=0.50 x.max=1.50 \
-       y.min=0.00 y.max=0.05
+       y.min=0.00 y.max=0.04
 
-# Main n- drift region: 4.95 um
+# Main n- drift region
 region num=2 material=GA2O3_BETA \
        x.min=0.00 x.max=2.20 \
-       y.min=0.05 y.max=5.00
+       y.min=0.04 y.max=5.00
 
 # n+ drain region
 region num=3 material=GA2O3_BETA \
@@ -84,32 +74,32 @@ region num=4 material=SiO2 \
 # Left sidewall oxide: 20 nm lateral thickness
 region num=5 material=SiO2 \
        x.min=0.48 x.max=0.50 \
-       y.min=0.00 y.max=0.05
+       y.min=0.00 y.max=0.04
 
 # Right sidewall oxide: 20 nm lateral thickness
 region num=6 material=SiO2 \
        x.min=1.50 x.max=1.52 \
-       y.min=0.00 y.max=0.05
+       y.min=0.00 y.max=0.04
 
 # Left recessed oxide: 20 nm vertical thickness
 region num=7 material=SiO2 \
        x.min=0.00 x.max=0.48 \
-       y.min=0.03 y.max=0.05
+       y.min=0.02 y.max=0.04
 
 # Right recessed oxide: 20 nm vertical thickness
 region num=8 material=SiO2 \
        x.min=1.52 x.max=2.20 \
-       y.min=0.03 y.max=0.05
+       y.min=0.02 y.max=0.04
 
 # Left top air/passivation fill
 region num=9 material=Air \
        x.min=0.00 x.max=0.48 \
-       y.min=-0.02 y.max=0.03
+       y.min=-0.02 y.max=0.02
 
 # Right upper air/passivation fill
 region num=10 material=Air \
        x.min=1.52 x.max=2.20 \
-       y.min=-0.02 y.max=0.03
+       y.min=-0.02 y.max=0.02
 
 
 # ============================================================
@@ -121,8 +111,6 @@ electrode name=source \
           x.min=0.50 x.max=1.50 \
           y.min=0.00 y.max=0.00
 
-# Wrapped / stepped gate electrode
-
 # Gate on top oxide
 electrode name=gate \
           x.min=1.30 x.max=1.52 \
@@ -131,12 +119,12 @@ electrode name=gate \
 # Gate on right sidewall oxide
 electrode name=gate \
           x.min=1.52 x.max=1.52 \
-          y.min=-0.02 y.max=0.03
+          y.min=-0.02 y.max=0.02
 
 # Gate on recessed oxide
 electrode name=gate \
           x.min=1.52 x.max=2.20 \
-          y.min=0.03 y.max=0.03
+          y.min=0.02 y.max=0.02
 
 # Bottom drain electrode
 electrode name=drain bottom
@@ -146,13 +134,8 @@ electrode name=drain bottom
 # Doping
 # ============================================================
 
-# Local n- source mesa
 doping uniform concentration=1e17 n.type region=1
-
-# Main n- drift layer
 doping uniform concentration=1e17 n.type region=2
-
-# n+ drain layer
 doping uniform concentration=2e18 n.type region=3
 
 
@@ -167,7 +150,7 @@ material region=6 permittivity=9.0
 material region=7 permittivity=9.0
 material region=8 permittivity=9.0
 
-# Air / dummy passivation regions
+# Air regions
 material region=9  permittivity=1.0
 material region=10 permittivity=1.0
 
@@ -200,14 +183,8 @@ material region=3 \
 # Contact properties
 # ============================================================
 
-# Schottky source contact
-# Current setting = 4.8 eV
 contact name=source workfun=4.8 surf.rec barrier
-
-# MOS gate metal
 contact name=gate workfun=5.00
-
-# Ohmic drain contact
 contact name=drain resistance=1e-6
 
 
@@ -233,44 +210,90 @@ output \
 
 
 # ============================================================
-# Small-signal capacitance extraction
-# Bias point: Vd = 6 V, Vg = 5.6 V, Vs = 0 V
+# Output curve simulation
+# Vd = 0 to 15 V
+# Vg = 0, 2, 4, 6, 8, 10 V
 # ============================================================
 
+# ---------- Vg = 0 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-# Ramp drain to 6 V
-solve vdrain=0.1
-solve vdrain=0.5
-solve vdrain=1.0
-solve vdrain=2.0
-solve vdrain=4.0
-solve vdrain=6.0
-
-# Ramp gate to 5.6 V
-solve vgate=0.5
-solve vgate=1.0
-solve vgate=2.0
-solve vgate=3.0
-solve vgate=4.0
-solve vgate=5.0
-solve vgate=5.6
-
-# AC small-signal calculation at fixed DC bias
-log outf=CAP_VD6_VG5p6.log
-solve ac freq=1e6
+log outf=IDVD_H40_VG0.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
 log off
 
-# Extract capacitances from AC log
-extract init infile="CAP_VD6_VG5p6.log"
 
-extract name="Cgs_VD6_VG5p6" max(curve(frequency, C."gate""source"))
-extract name="Cgd_VD6_VG5p6" max(curve(frequency, C."gate""drain"))
-extract name="Cgg_VD6_VG5p6" max(curve(frequency, C."gate""gate"))
+# ---------- Vg = 2 V ----------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve vgate=2.0
 
-save outf=Ga2O3_WRAP_CAP_VD6_VG5p6.str
-tonyplot CAP_VD6_VG5p6.log
+log outf=IDVD_H40_VG2.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+log off
+
+
+# ---------- Vg = 4 V ----------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve vgate=2.0
+solve vgate=4.0
+
+log outf=IDVD_H40_VG4.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+log off
+
+
+# ---------- Vg = 6 V ----------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve vgate=2.0
+solve vgate=4.0
+solve vgate=6.0
+
+log outf=IDVD_H40_VG6.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+log off
+
+
+# ---------- Vg = 8 V ----------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve vgate=2.0
+solve vgate=4.0
+solve vgate=6.0
+solve vgate=8.0
+
+log outf=IDVD_H40_VG8.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+log off
+
+
+# ---------- Vg = 10 V ----------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve vgate=2.0
+solve vgate=4.0
+solve vgate=6.0
+solve vgate=8.0
+solve vgate=10.0
+
+log outf=IDVD_H40_VG10.log
+solve vdrain=0.0
+solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+log off
+
+
+# Plot all output curves together
+tonyplot IDVD_H40_VG0.log IDVD_H40_VG2.log IDVD_H40_VG4.log IDVD_H40_VG6.log IDVD_H40_VG8.log IDVD_H40_VG10.log
+
+
 # ============================================================
 # End simulation
 # ============================================================
