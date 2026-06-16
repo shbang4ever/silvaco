@@ -5,10 +5,17 @@ go atlas
 # Wrapped-oxide device
 #
 # Modified:
-#   1. Local n- source mesa thickness = 40 nm = 0.04 um
+#   1. Local n- source mesa thickness = 30 nm = 0.03 um
 #   2. Output curve:
 #        Vd = 0 to 15 V
 #        Vg = 0 to 10 V, step = 2 V
+#
+# Geometry:
+#   Oxide thickness everywhere = 20 nm = 0.02 um
+#   Source mesa / local n- height = 30 nm = 0.03 um
+#   Main n- drift thickness = 4.97 um
+#   Total n- thickness = 5.00 um
+#   Symmetry plane: x = 2.2 um
 # ============================================================
 
 
@@ -33,7 +40,8 @@ y.mesh loc=-0.010 spac=0.002
 y.mesh loc=0.000  spac=0.002
 y.mesh loc=0.010  spac=0.002
 y.mesh loc=0.020  spac=0.002
-y.mesh loc=0.040  spac=0.002
+y.mesh loc=0.030  spac=0.002
+y.mesh loc=0.050  spac=0.004
 y.mesh loc=0.100  spac=0.01
 y.mesh loc=0.200  spac=0.02
 y.mesh loc=1.000  spac=0.10
@@ -45,15 +53,15 @@ y.mesh loc=5.500  spac=0.05
 # Region definition
 # ============================================================
 
-# Local n- source mesa: 40 nm height
+# Local n- source mesa: 30 nm height
 region num=1 material=GA2O3_BETA \
        x.min=0.50 x.max=1.50 \
-       y.min=0.00 y.max=0.04
+       y.min=0.00 y.max=0.03
 
-# Main n- drift region
+# Main n- drift region: 4.97 um
 region num=2 material=GA2O3_BETA \
        x.min=0.00 x.max=2.20 \
-       y.min=0.04 y.max=5.00
+       y.min=0.03 y.max=5.00
 
 # n+ drain region
 region num=3 material=GA2O3_BETA \
@@ -74,32 +82,32 @@ region num=4 material=SiO2 \
 # Left sidewall oxide: 20 nm lateral thickness
 region num=5 material=SiO2 \
        x.min=0.48 x.max=0.50 \
-       y.min=0.00 y.max=0.04
+       y.min=0.00 y.max=0.03
 
 # Right sidewall oxide: 20 nm lateral thickness
 region num=6 material=SiO2 \
        x.min=1.50 x.max=1.52 \
-       y.min=0.00 y.max=0.04
+       y.min=0.00 y.max=0.03
 
 # Left recessed oxide: 20 nm vertical thickness
 region num=7 material=SiO2 \
        x.min=0.00 x.max=0.48 \
-       y.min=0.02 y.max=0.04
+       y.min=0.01 y.max=0.03
 
 # Right recessed oxide: 20 nm vertical thickness
 region num=8 material=SiO2 \
        x.min=1.52 x.max=2.20 \
-       y.min=0.02 y.max=0.04
+       y.min=0.01 y.max=0.03
 
 # Left top air/passivation fill
 region num=9 material=Air \
        x.min=0.00 x.max=0.48 \
-       y.min=-0.02 y.max=0.02
+       y.min=-0.02 y.max=0.01
 
 # Right upper air/passivation fill
 region num=10 material=Air \
        x.min=1.52 x.max=2.20 \
-       y.min=-0.02 y.max=0.02
+       y.min=-0.02 y.max=0.01
 
 
 # ============================================================
@@ -119,12 +127,12 @@ electrode name=gate \
 # Gate on right sidewall oxide
 electrode name=gate \
           x.min=1.52 x.max=1.52 \
-          y.min=-0.02 y.max=0.02
+          y.min=-0.02 y.max=0.01
 
 # Gate on recessed oxide
 electrode name=gate \
           x.min=1.52 x.max=2.20 \
-          y.min=0.02 y.max=0.02
+          y.min=0.01 y.max=0.01
 
 # Bottom drain electrode
 electrode name=drain bottom
@@ -134,8 +142,13 @@ electrode name=drain bottom
 # Doping
 # ============================================================
 
+# Local n- source mesa
 doping uniform concentration=1e17 n.type region=1
+
+# Main n- drift layer
 doping uniform concentration=1e17 n.type region=2
+
+# n+ drain layer
 doping uniform concentration=2e18 n.type region=3
 
 
@@ -150,7 +163,7 @@ material region=6 permittivity=9.0
 material region=7 permittivity=9.0
 material region=8 permittivity=9.0
 
-# Air regions
+# Air / dummy passivation regions
 material region=9  permittivity=1.0
 material region=10 permittivity=1.0
 
@@ -183,8 +196,13 @@ material region=3 \
 # Contact properties
 # ============================================================
 
+# Schottky source contact
 contact name=source workfun=4.8 surf.rec barrier
+
+# MOS gate metal
 contact name=gate workfun=5.00
+
+# Ohmic drain contact
 contact name=drain resistance=1e-6
 
 
@@ -215,83 +233,124 @@ output \
 # Vg = 0, 2, 4, 6, 8, 10 V
 # ============================================================
 
+
 # ---------- Vg = 0 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-log outf=IDVD_H40_VG0.log
+log outf=IDVD_H30_VG0.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
 # ---------- Vg = 2 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
+
+solve vgate=0.5
+solve vgate=1.0
 solve vgate=2.0
 
-log outf=IDVD_H40_VG2.log
+log outf=IDVD_H30_VG2.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
 # ---------- Vg = 4 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
+
+solve vgate=0.5
+solve vgate=1.0
 solve vgate=2.0
+solve vgate=3.0
 solve vgate=4.0
 
-log outf=IDVD_H40_VG4.log
+log outf=IDVD_H30_VG4.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
 # ---------- Vg = 6 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
+
+solve vgate=0.5
+solve vgate=1.0
 solve vgate=2.0
+solve vgate=3.0
 solve vgate=4.0
+solve vgate=5.0
 solve vgate=6.0
 
-log outf=IDVD_H40_VG6.log
+log outf=IDVD_H30_VG6.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
 # ---------- Vg = 8 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
+
+solve vgate=0.5
+solve vgate=1.0
 solve vgate=2.0
+solve vgate=3.0
 solve vgate=4.0
+solve vgate=5.0
 solve vgate=6.0
+solve vgate=7.0
 solve vgate=8.0
 
-log outf=IDVD_H40_VG8.log
+log outf=IDVD_H30_VG8.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
 # ---------- Vg = 10 V ----------
 solve init
 solve vsource=0 vgate=0 vdrain=0
+
+solve vgate=0.5
+solve vgate=1.0
 solve vgate=2.0
+solve vgate=3.0
 solve vgate=4.0
+solve vgate=5.0
 solve vgate=6.0
+solve vgate=7.0
 solve vgate=8.0
+solve vgate=9.0
 solve vgate=10.0
 
-log outf=IDVD_H40_VG10.log
+log outf=IDVD_H30_VG10.log
+
 solve vdrain=0.0
-solve vdrain=0.5 vstep=0.5 vfinal=15 name=drain
+solve name=drain vdrain=0.5 vstep=0.5 vfinal=15
+
 log off
 
 
+# ============================================================
 # Plot all output curves together
-tonyplot IDVD_H40_VG0.log IDVD_H40_VG2.log IDVD_H40_VG4.log IDVD_H40_VG6.log IDVD_H40_VG8.log IDVD_H40_VG10.log
+# ============================================================
+
+tonyplot IDVD_H30_VG0.log IDVD_H30_VG2.log IDVD_H30_VG4.log IDVD_H30_VG6.log IDVD_H30_VG8.log IDVD_H30_VG10.log
 
 
 # ============================================================
