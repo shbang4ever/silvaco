@@ -1,19 +1,19 @@
 go atlas
 
 # ============================================================
-# Operating-point simulation version
+# Output curve simulation version
 # Wrapped-oxide device
 #
 # Modified:
-#   1. Local n- source mesa thickness = 30 nm = 0.03 um
+#   1. Local n- source mesa thickness = 10 nm = 0.01 um
 #   2. Output curve:
 #        Vd = 0 to 15 V
 #        Vg = 0 to 10 V, step = 2 V
 #
 # Geometry:
 #   Oxide thickness everywhere = 20 nm = 0.02 um
-#   Source mesa / local n- height = 30 nm = 0.03 um
-#   Main n- drift thickness = 4.97 um
+#   Source mesa / local n- height = 10 nm = 0.01 um
+#   Main n- drift thickness = 4.99 um
 #   Total n- thickness = 5.00 um
 #   Symmetry plane: x = 2.2 um
 # ============================================================
@@ -53,15 +53,15 @@ y.mesh loc=5.500  spac=0.05
 # Region definition
 # ============================================================
 
-# Local n- source mesa: 30 nm height
+# Local n- source mesa: 10 nm height
 region num=1 material=GA2O3_BETA \
        x.min=0.50 x.max=1.50 \
-       y.min=0.00 y.max=0.03
+       y.min=0.00 y.max=0.01
 
-# Main n- drift region: 4.97 um
+# Main n- drift region: 4.99 um
 region num=2 material=GA2O3_BETA \
        x.min=0.00 x.max=2.20 \
-       y.min=0.03 y.max=5.00
+       y.min=0.01 y.max=5.00
 
 # n+ drain region
 region num=3 material=GA2O3_BETA \
@@ -74,7 +74,7 @@ region num=3 material=GA2O3_BETA \
 # All oxide thickness = 20 nm
 # ============================================================
 
-# Top oxide above mesa
+# Top oxide above mesa: 20 nm vertical thickness
 region num=4 material=SiO2 \
        x.min=0.48 x.max=1.52 \
        y.min=-0.02 y.max=0.00
@@ -82,32 +82,32 @@ region num=4 material=SiO2 \
 # Left sidewall oxide: 20 nm lateral thickness
 region num=5 material=SiO2 \
        x.min=0.48 x.max=0.50 \
-       y.min=0.00 y.max=0.03
+       y.min=0.00 y.max=0.01
 
 # Right sidewall oxide: 20 nm lateral thickness
 region num=6 material=SiO2 \
        x.min=1.50 x.max=1.52 \
-       y.min=0.00 y.max=0.03
+       y.min=0.00 y.max=0.01
 
 # Left recessed oxide: 20 nm vertical thickness
 region num=7 material=SiO2 \
        x.min=0.00 x.max=0.48 \
-       y.min=0.01 y.max=0.03
+       y.min=-0.01 y.max=0.01
 
 # Right recessed oxide: 20 nm vertical thickness
 region num=8 material=SiO2 \
        x.min=1.52 x.max=2.20 \
-       y.min=0.01 y.max=0.03
+       y.min=-0.01 y.max=0.01
 
 # Left top air/passivation fill
 region num=9 material=Air \
        x.min=0.00 x.max=0.48 \
-       y.min=-0.02 y.max=0.01
+       y.min=-0.02 y.max=-0.01
 
 # Right upper air/passivation fill
 region num=10 material=Air \
        x.min=1.52 x.max=2.20 \
-       y.min=-0.02 y.max=0.01
+       y.min=-0.02 y.max=-0.01
 
 
 # ============================================================
@@ -124,15 +124,15 @@ electrode name=gate \
           x.min=1.30 x.max=1.52 \
           y.min=-0.02 y.max=-0.02
 
-# Gate on right sidewall oxide
+# Gate on right vertical step
 electrode name=gate \
           x.min=1.52 x.max=1.52 \
-          y.min=-0.02 y.max=0.01
+          y.min=-0.02 y.max=-0.01
 
 # Gate on recessed oxide
 electrode name=gate \
           x.min=1.52 x.max=2.20 \
-          y.min=0.01 y.max=0.01
+          y.min=-0.01 y.max=-0.01
 
 # Bottom drain electrode
 electrode name=drain bottom
@@ -228,37 +228,124 @@ output \
 
 
 # ============================================================
-# Transfer curve simulation
-# Fixed Vd = 15 V
-# Sweep Vg = 0 to 10 V
+# Output curve simulation
+# Sweep Vd = 0 to 15 V
+# Vg = 0, 2, 4, 6, 8, 10 V
 # ============================================================
 
+
+# -------------------------
+# Vg = 0 V
+# -------------------------
 solve init
 solve vsource=0 vgate=0 vdrain=0
 
-# Ramp drain voltage first to avoid convergence problem
+log outf=IDVD_H10_VD15_VG0.log
+
+solve vdrain=0.0
 solve vdrain=0.01
 solve vdrain=0.1
-solve vdrain=0.5
-solve name=drain vdrain=1.0 vstep=0.5 vfinal=15.0
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
 
-# Log only the transfer curve data
-log outf=IDVG_H30_VD15.log
+log off
 
-# Save first point at Vg = 0 V, Vd = 15 V
-solve vgate=0.0
 
-# Sweep gate voltage
-solve name=gate vgate=0.1 vstep=0.1 vfinal=10.0
+# -------------------------
+# Vg = 2 V
+# -------------------------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve name=gate vgate=1.0 vstep=1.0 vfinal=2.0
+
+log outf=IDVD_H10_VD15_VG2.log
+
+solve vdrain=0.0
+solve vdrain=0.01
+solve vdrain=0.1
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
+
+log off
+
+
+# -------------------------
+# Vg = 4 V
+# -------------------------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve name=gate vgate=1.0 vstep=1.0 vfinal=4.0
+
+log outf=IDVD_H10_VD15_VG4.log
+
+solve vdrain=0.0
+solve vdrain=0.01
+solve vdrain=0.1
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
+
+log off
+
+
+# -------------------------
+# Vg = 6 V
+# -------------------------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve name=gate vgate=1.0 vstep=1.0 vfinal=6.0
+
+log outf=IDVD_H10_VD15_VG6.log
+
+solve vdrain=0.0
+solve vdrain=0.01
+solve vdrain=0.1
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
+
+log off
+
+
+# -------------------------
+# Vg = 8 V
+# -------------------------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve name=gate vgate=1.0 vstep=1.0 vfinal=8.0
+
+log outf=IDVD_H10_VD15_VG8.log
+
+solve vdrain=0.0
+solve vdrain=0.01
+solve vdrain=0.1
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
+
+log off
+
+
+# -------------------------
+# Vg = 10 V
+# -------------------------
+solve init
+solve vsource=0 vgate=0 vdrain=0
+solve name=gate vgate=1.0 vstep=1.0 vfinal=10.0
+
+log outf=IDVD_H10_VD15_VG10.log
+
+solve vdrain=0.0
+solve vdrain=0.01
+solve vdrain=0.1
+solve name=drain vdrain=0.2 vstep=0.1 vfinal=15.0
 
 log off
 
 
 # ============================================================
-# Plot transfer curve
+# Plot output curves together
 # ============================================================
 
-tonyplot IDVG_H30_VD15.log
+tonyplot -overlay \
+IDVD_H10_VD15_VG0.log \
+IDVD_H10_VD15_VG2.log \
+IDVD_H10_VD15_VG4.log \
+IDVD_H10_VD15_VG6.log \
+IDVD_H10_VD15_VG8.log \
+IDVD_H10_VD15_VG10.log
 
 
 # ============================================================
