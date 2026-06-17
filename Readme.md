@@ -1,6 +1,6 @@
 # RF Current Amplification Device Simulation
 
-Author: Sean 
+Author: Sean (Seunghyeon Bang)
 
 Main Affiliation: University of Seoul, Department of Electrical and Computer Engineering
 
