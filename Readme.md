@@ -1,8 +1,9 @@
 # RF Current Amplification Device Simulation
 
-Author: Sean  
-Affiliation: University of Seoul, Department of Electrical and Computer Engineering  
-Concentration: Semiconductor Device  
+Author: Sean 
+Main Affiliation: University of Seoul, Department of Electrical and Computer Engineering
+Current Affiliation: North Carolina State University, Department of Electrical and Computer Engineering
+Concentration: Power Semiconductor Device 
 Software: SILVACO ATLAS, TonyPlot, Python  
 
 ## Project Overview
