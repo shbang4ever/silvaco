@@ -60,15 +60,6 @@ The target behavior of this device is:
 - High transconductance
 - Useful current amplification for RF operation
 
-## Main Simulation Variables
-
-This project investigates several important design parameters:
-
-### 1. Gate work function
-
-The gate metal work function strongly affects the electrostatic potential near the channel.
-
-Lower gate work function can reduce the electron barrier and improve turn-on behavior for an n-type device.
 
 Example condition:
 
