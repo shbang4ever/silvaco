@@ -1,0 +1,235 @@
+go atlas
+
+# ============================================================
+# Right-side wrapped-gate H40 structure
+# Mesa thickness = 0.04 um = 40 nm
+# Main n- drift thickness = 4.96 um
+# ============================================================
+
+mesh space.mult=1.0
+
+# ============================================================
+# Mesh
+# ============================================================
+
+x.mesh loc=0.00   spac=0.005
+x.mesh loc=0.02   spac=0.005
+x.mesh loc=0.10   spac=0.020
+x.mesh loc=1.00   spac=0.050
+x.mesh loc=1.70   spac=0.020
+x.mesh loc=1.80   spac=0.002
+x.mesh loc=1.85   spac=0.003
+x.mesh loc=1.98   spac=0.002
+x.mesh loc=2.00   spac=0.001
+x.mesh loc=2.02   spac=0.001
+x.mesh loc=2.04   spac=0.002
+x.mesh loc=2.20   spac=0.010
+x.mesh loc=2.50   spac=0.030
+x.mesh loc=2.90   spac=0.010
+x.mesh loc=2.98   spac=0.003
+x.mesh loc=3.00   spac=0.002
+
+y.mesh loc=-0.020 spac=0.001
+y.mesh loc=-0.015 spac=0.001
+y.mesh loc=-0.010 spac=0.001
+y.mesh loc=0.000  spac=0.001
+
+# recessed-gate metal level for H40
+y.mesh loc=0.020  spac=0.001
+
+# mesa lower boundary for H40
+y.mesh loc=0.030  spac=0.001
+y.mesh loc=0.040  spac=0.001
+
+y.mesh loc=0.050  spac=0.002
+y.mesh loc=0.100  spac=0.010
+y.mesh loc=0.200  spac=0.020
+y.mesh loc=0.500  spac=0.050
+y.mesh loc=1.000  spac=0.100
+y.mesh loc=2.000  spac=0.150
+y.mesh loc=3.000  spac=0.150
+y.mesh loc=4.000  spac=0.100
+y.mesh loc=4.900  spac=0.020
+y.mesh loc=4.980  spac=0.005
+y.mesh loc=5.000  spac=0.002
+y.mesh loc=5.050  spac=0.010
+y.mesh loc=5.200  spac=0.030
+y.mesh loc=5.400  spac=0.020
+y.mesh loc=5.480  spac=0.005
+y.mesh loc=5.500  spac=0.002
+
+# ============================================================
+# Semiconductor regions
+# ============================================================
+
+# Local n- source mesa: 40 nm
+region num=1 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=0.00 y.max=0.04
+
+# Main n- drift region: 4.96 um
+region num=2 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=0.04 y.max=5.00
+
+# n+ drain region
+region num=3 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=5.00 y.max=5.50
+
+# ============================================================
+# Oxide and air regions
+# ============================================================
+
+# Top oxide above source mesa
+region num=4 material=Al2O3 \
+       x.min=0.00 x.max=2.02 \
+       y.min=-0.02 y.max=0.00
+
+# Right sidewall oxide for H40
+region num=5 material=Al2O3 \
+       x.min=2.00 x.max=2.02 \
+       y.min=0.00 y.max=0.04
+
+# Right recessed oxide for H40
+region num=6 material=Al2O3 \
+       x.min=2.02 x.max=3.00 \
+       y.min=0.02 y.max=0.04
+
+# Air/passivation above right recessed gate
+region num=7 material=Air \
+       x.min=2.02 x.max=3.00 \
+       y.min=-0.02 y.max=0.02
+
+# ============================================================
+# Electrodes
+# ============================================================
+
+# Schottky source contact
+electrode name=source \
+	  x.min=0.00 x.max=2.00 \
+	  y.min=0.00 y.max=0.00
+
+# Top gate over Ga2O3 mesa
+electrode name=gate \
+	  x.min=1.80 x.max=2.00 \
+	  y.min=-0.02 y.max=-0.02
+
+# 20 nm gate corner connector
+electrode name=gate \
+	  x.min=2.00 x.max=2.02 \
+	  y.min=-0.02 y.max=-0.02
+
+# Vertical right-side gate for H40
+electrode name=gate \
+	  x.min=2.02 x.max=2.02 \
+	  y.min=-0.02 y.max=0.02
+
+# Right recessed horizontal gate for H40
+electrode name=gate \
+	  x.min=2.02 x.max=3.00 \
+	  y.min=0.02 y.max=0.02
+
+# Bottom drain electrode
+electrode name=drain bottom
+
+# ============================================================
+# Doping
+# ============================================================
+
+# Local n- source mesa
+doping uniform concentration=1e16 n.type region=1
+
+# Main n- drift layer
+doping uniform concentration=1e17 n.type region=2
+
+# n+ drain layer
+doping uniform concentration=2e18 n.type region=3
+
+# ============================================================
+# Material parameters
+# ============================================================
+
+material material=MY_GA2O3 \
+	 user.group=semiconductor \
+	 user.default=GaN \
+	 eg300=4.80 \
+	 affinity=4.00 \
+	 permittivity=10.0 \
+	 mun=200 \
+	 mup=1 \
+	 nc300=3.72e18 \
+	 nv300=3.72e18 \
+	 taun0=1e-8 \
+	 taup0=1e-8 \
+	 me.tunnel=0.28 \
+	 mh.tunnel=0.28 \
+	 d.tunnel=1e-6
+
+# Al2O3 dielectric constant
+material region=4 permittivity=9.0
+material region=5 permittivity=9.0
+material region=6 permittivity=9.0
+
+# Air/passivation dielectric constant
+material region=7 permittivity=1.0
+
+# ============================================================
+# Contact properties
+# ============================================================
+
+# Schottky source contact
+contact name=source \
+	workfun=4.8 \
+	surf.rec \
+	barrier
+
+# MOS gate metal
+contact name=gate \
+	workfun=4.2
+
+# Ohmic drain contact
+contact name=drain \
+	resistance=1e-6
+
+# ============================================================
+# Physical models
+# ============================================================
+
+models srh fermi ust ust.bl temperature=300 print
+
+# ============================================================
+# Numerical method
+# ============================================================
+
+method newton autonr maxtrap=10
+
+# ============================================================
+# TonyPlot output variables
+# ============================================================
+
+output \
+       con.band \
+       val.band \
+       band.param \
+       e.field \
+       ex.field \
+       ey.field \
+       e.mobility \
+       h.mobility \
+       e.velocity \
+       h.velocity \
+       j.electron \
+       j.hole \
+       j.total \
+       jx.electron \
+       jy.electron \
+       jx.hole \
+       jy.hole \
+       jx.total \
+       jy.total \
+       flowlines \
+       ust.prob
+
+
+quit
