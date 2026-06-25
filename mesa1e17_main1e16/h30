@@ -1,0 +1,389 @@
+go atlas
+
+# ============================================================
+# Right-side wrapped-gate H30 structure
+# User-defined beta-Ga2O3
+#
+# Geometry:
+#   Total lateral width              = 3.00 um
+#   Source mesa width                = 2.00 um
+#   Right recessed gate length       = 1.00 um
+#
+#   Top-gate overlap over Ga2O3:
+#       x = 1.80 to 2.00 um
+#
+#   Mesa thickness                   = 0.03 um
+#   Main n- drift thickness          = 4.97 um
+#   Total n- thickness               = 5.00 um
+#   n+ drain thickness               = 0.50 um
+#
+#   Semiconductor:
+#       y = 0.00 to 5.50 um
+#
+#   Complete structure including oxide:
+#       y = -0.02 to 5.50 um
+#       Total vertical dimension = 5.52 um
+#
+#   Oxide thickness everywhere       = 0.02 um
+#
+# Coordinate convention:
+#   y increases downward
+# ============================================================
+
+
+# ============================================================
+# Mesh
+# ============================================================
+
+mesh space.mult=1.0
+
+
+# ------------------------------------------------------------
+# X-direction mesh
+# ------------------------------------------------------------
+
+# Left source boundary
+x.mesh loc=0.00   spac=0.005
+x.mesh loc=0.02   spac=0.005
+x.mesh loc=0.10   spac=0.020
+
+# Source interior
+x.mesh loc=1.00   spac=0.050
+x.mesh loc=1.70   spac=0.020
+
+# Top-gate starting edge
+x.mesh loc=1.80   spac=0.002
+x.mesh loc=1.85   spac=0.003
+
+# Mesa and source right edge
+x.mesh loc=1.98   spac=0.002
+x.mesh loc=2.00   spac=0.001
+
+# Outer sidewall oxide edge
+x.mesh loc=2.02   spac=0.001
+x.mesh loc=2.04   spac=0.002
+
+# Right recessed-gate region
+x.mesh loc=2.20   spac=0.010
+x.mesh loc=2.50   spac=0.030
+x.mesh loc=2.90   spac=0.010
+
+# Right device boundary
+x.mesh loc=2.98   spac=0.003
+x.mesh loc=3.00   spac=0.002
+
+
+# ------------------------------------------------------------
+# Y-direction mesh
+# ------------------------------------------------------------
+
+# Top of oxide
+y.mesh loc=-0.020 spac=0.001
+y.mesh loc=-0.015 spac=0.001
+y.mesh loc=-0.010 spac=0.001
+
+# Semiconductor top surface
+y.mesh loc=0.000  spac=0.001
+
+# Recessed-gate metal / oxide top level
+y.mesh loc=0.010  spac=0.001
+
+# Mesa lower boundary
+y.mesh loc=0.020  spac=0.001
+y.mesh loc=0.030  spac=0.001
+
+# Near-mesa semiconductor region
+y.mesh loc=0.040  spac=0.002
+y.mesh loc=0.050  spac=0.003
+y.mesh loc=0.100  spac=0.010
+y.mesh loc=0.200  spac=0.020
+
+# Main drift region
+y.mesh loc=0.500  spac=0.050
+y.mesh loc=1.000  spac=0.100
+y.mesh loc=2.000  spac=0.150
+y.mesh loc=3.000  spac=0.150
+y.mesh loc=4.000  spac=0.100
+
+# n- / n+ junction
+y.mesh loc=4.900  spac=0.020
+y.mesh loc=4.980  spac=0.005
+y.mesh loc=5.000  spac=0.002
+
+# n+ drain region
+y.mesh loc=5.050  spac=0.010
+y.mesh loc=5.200  spac=0.030
+y.mesh loc=5.400  spac=0.020
+
+# Drain bottom
+y.mesh loc=5.480  spac=0.005
+y.mesh loc=5.500  spac=0.002
+
+
+# ============================================================
+# Semiconductor regions
+# ============================================================
+
+# ------------------------------------------------------------
+# Region 1: Local n- source mesa
+#
+# Width:
+#   x = 0.00 to 2.00 um
+#
+# Thickness:
+#   y = 0.00 to 0.03 um
+#   30 nm
+# ------------------------------------------------------------
+
+region num=1 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=0.00 y.max=0.03
+
+
+# ------------------------------------------------------------
+# Region 2: Main n- drift region
+#
+# Thickness:
+#   5.00 - 0.03 = 4.97 um
+# ------------------------------------------------------------
+
+region num=2 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=0.03 y.max=5.00
+
+
+# ------------------------------------------------------------
+# Region 3: n+ drain region
+#
+# Thickness:
+#   5.50 - 5.00 = 0.50 um
+# ------------------------------------------------------------
+
+region num=3 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=5.00 y.max=5.50
+
+
+# ============================================================
+# Oxide and air regions
+# ============================================================
+
+# ------------------------------------------------------------
+# Region 4: Top oxide above source mesa
+#
+# The oxide extends to x = 2.02 um to create a continuous
+# 20 nm corner with the right-sidewall oxide.
+# ------------------------------------------------------------
+
+region num=4 material=Al2O3 \
+       x.min=0.00 x.max=2.02 \
+       y.min=-0.02 y.max=0.00
+
+
+# ------------------------------------------------------------
+# Region 5: Right sidewall oxide
+#
+# Lateral oxide thickness:
+#   2.02 - 2.00 = 0.02 um
+# ------------------------------------------------------------
+
+region num=5 material=Al2O3 \
+       x.min=2.00 x.max=2.02 \
+       y.min=0.00 y.max=0.03
+
+
+# ------------------------------------------------------------
+# Region 6: Right recessed oxide
+#
+# Vertical oxide thickness:
+#   0.03 - 0.01 = 0.02 um
+# ------------------------------------------------------------
+
+region num=6 material=Al2O3 \
+       x.min=2.02 x.max=3.00 \
+       y.min=0.01 y.max=0.03
+
+
+# ------------------------------------------------------------
+# Region 7: Air/passivation above right recessed gate
+# ------------------------------------------------------------
+
+region num=7 material=Air \
+       x.min=2.02 x.max=3.00 \
+       y.min=-0.02 y.max=0.01
+
+
+# ============================================================
+# Electrodes
+# ============================================================
+
+# ------------------------------------------------------------
+# Schottky source contact
+#
+# Source contact width:
+#   x = 0.00 to 2.00 um
+# ------------------------------------------------------------
+
+electrode name=source \
+	  x.min=0.00 x.max=2.00 \
+	  y.min=0.00 y.max=0.00
+
+
+# ------------------------------------------------------------
+# Top-gate section
+#
+# Effective gate overlap over the Ga2O3 mesa:
+#   x = 1.80 to 2.00 um
+# ------------------------------------------------------------
+
+electrode name=gate \
+	  x.min=1.80 x.max=2.00 \
+	  y.min=-0.02 y.max=-0.02
+
+
+# ------------------------------------------------------------
+# 20 nm gate corner connector
+#
+# This section does not increase the gate overlap over Ga2O3.
+# It connects the top gate to the outside of the sidewall oxide.
+# ------------------------------------------------------------
+
+electrode name=gate \
+	  x.min=2.00 x.max=2.02 \
+	  y.min=-0.02 y.max=-0.02
+
+
+# ------------------------------------------------------------
+# Vertical right-side gate
+# ------------------------------------------------------------
+
+electrode name=gate \
+	  x.min=2.02 x.max=2.02 \
+	  y.min=-0.02 y.max=0.01
+
+
+# ------------------------------------------------------------
+# Right recessed horizontal gate
+#
+# Gate length along recessed surface:
+#   approximately 1.0 um
+# ------------------------------------------------------------
+
+electrode name=gate \
+	  x.min=2.02 x.max=3.00 \
+	  y.min=0.01 y.max=0.01
+
+
+# Bottom drain electrode
+electrode name=drain bottom
+
+
+# ============================================================
+# Doping
+# ============================================================
+
+# Local n- source mesa
+doping uniform concentration=1e17 n.type region=1
+
+# Main n- drift layer
+doping uniform concentration=1e16 n.type region=2
+
+# n+ drain layer
+doping uniform concentration=2e18 n.type region=3
+
+
+# ============================================================
+# Material parameters
+# ============================================================
+
+# User-defined beta-Ga2O3
+#
+# MY_GA2O3 is used to avoid conflicts with the built-in
+# GA2O3_BETA material definition.
+material material=MY_GA2O3 \
+	 user.group=semiconductor \
+	 user.default=GaN \
+	 eg300=4.80 \
+	 affinity=4.00 \
+	 permittivity=10.0 \
+	 mun=200 \
+	 mup=1 \
+	 nc300=3.72e18 \
+	 nv300=3.72e18 \
+	 taun0=1e-8 \
+	 taup0=1e-8 \
+	 me.tunnel=0.28 \
+	 mh.tunnel=0.28 \
+	 d.tunnel=1e-6
+
+
+# Al2O3 dielectric constant
+material region=4 permittivity=9.0
+material region=5 permittivity=9.0
+material region=6 permittivity=9.0
+
+# Air/passivation dielectric constant
+material region=7 permittivity=1.0
+
+
+# ============================================================
+# Contact properties
+# ============================================================
+
+# Schottky source contact
+contact name=source \
+	workfun=4.8 \
+	surf.rec \
+	barrier
+
+# MOS gate metal
+contact name=gate \
+	workfun=4.2
+
+# Ohmic drain contact
+contact name=drain \
+	resistance=1e-6
+
+
+# ============================================================
+# Physical models
+# ============================================================
+
+models srh fermi ust ust.bl temperature=300 print
+
+
+# ============================================================
+# Numerical method
+# ============================================================
+
+method newton autonr maxtrap=10
+
+
+# ============================================================
+# TonyPlot output variables
+# ============================================================
+
+output \
+       con.band \
+       val.band \
+       band.param \
+       e.field \
+       ex.field \
+       ey.field \
+       e.mobility \
+       h.mobility \
+       e.velocity \
+       h.velocity \
+       j.electron \
+       j.hole \
+       j.total \
+       jx.electron \
+       jy.electron \
+       jx.hole \
+       jy.hole \
+       jx.total \
+       jy.total \
+       flowlines \
+       ust.prob
+
+quit
