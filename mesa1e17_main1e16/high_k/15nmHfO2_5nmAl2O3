@@ -1,0 +1,460 @@
+go atlas
+
+# ============================================================
+# Right-side wrapped-gate H30 structure
+#
+# Gate dielectric:
+#   Metal / 15 nm HfO2 / 5 nm Al2O3 / beta-Ga2O3
+#
+# Total dielectric thickness = 20 nm
+#
+# Geometry:
+#   Total lateral width              = 3.00 um
+#   Source mesa width                = 2.00 um
+#   Right recessed gate length       = 1.00 um
+#
+#   Top-gate overlap over Ga2O3:
+#       x = 1.80 to 2.00 um
+#
+#   Mesa thickness                   = 0.03 um
+#   Main n- drift thickness          = 4.97 um
+#   Total n- thickness               = 5.00 um
+#   n+ drain thickness               = 0.50 um
+#
+#   Semiconductor:
+#       y = 0.00 to 5.50 um
+#
+#   Complete structure:
+#       y = -0.02 to 5.50 um
+#
+# Coordinate convention:
+#   y increases downward
+# ============================================================
+
+
+# ============================================================
+# Mesh
+# ============================================================
+
+mesh space.mult=1.0
+
+
+# ------------------------------------------------------------
+# X-direction mesh
+# ------------------------------------------------------------
+
+# Left source boundary
+x.mesh loc=0.0000 spac=0.0050
+x.mesh loc=0.0200 spac=0.0050
+x.mesh loc=0.1000 spac=0.0200
+
+# Source interior
+x.mesh loc=1.0000 spac=0.0500
+x.mesh loc=1.7000 spac=0.0200
+
+# Top-gate starting edge
+x.mesh loc=1.8000 spac=0.0020
+x.mesh loc=1.8500 spac=0.0030
+
+# Mesa and source right edge
+x.mesh loc=1.9800 spac=0.0020
+x.mesh loc=2.0000 spac=0.0005
+
+# 5 nm Al2O3 sidewall layer
+x.mesh loc=2.0025 spac=0.0005
+x.mesh loc=2.0050 spac=0.0005
+
+# 15 nm HfO2 sidewall layer
+x.mesh loc=2.0100 spac=0.0010
+x.mesh loc=2.0150 spac=0.0010
+x.mesh loc=2.0200 spac=0.0005
+
+# Right recessed-gate region
+x.mesh loc=2.0400 spac=0.0020
+x.mesh loc=2.2000 spac=0.0100
+x.mesh loc=2.5000 spac=0.0300
+x.mesh loc=2.9000 spac=0.0100
+
+# Right device boundary
+x.mesh loc=2.9800 spac=0.0030
+x.mesh loc=3.0000 spac=0.0020
+
+
+# ------------------------------------------------------------
+# Y-direction mesh
+# ------------------------------------------------------------
+
+# Top gate/HfO2 interface
+y.mesh loc=-0.0200 spac=0.0005
+
+# Inside 15 nm top HfO2
+y.mesh loc=-0.0150 spac=0.0010
+y.mesh loc=-0.0100 spac=0.0010
+
+# HfO2/Al2O3 interface
+y.mesh loc=-0.0050 spac=0.0005
+
+# Inside 5 nm top Al2O3
+y.mesh loc=-0.0025 spac=0.0005
+
+# Semiconductor top surface
+y.mesh loc=0.0000 spac=0.0005
+
+# Recessed gate/HfO2 interface
+y.mesh loc=0.0100 spac=0.0005
+
+# Inside recessed HfO2
+y.mesh loc=0.0150 spac=0.0010
+y.mesh loc=0.0200 spac=0.0010
+
+# HfO2/Al2O3 interface in recessed region
+y.mesh loc=0.0250 spac=0.0005
+
+# Inside recessed Al2O3
+y.mesh loc=0.0275 spac=0.0005
+
+# Mesa lower boundary / recessed semiconductor surface
+y.mesh loc=0.0300 spac=0.0005
+
+# Near-mesa semiconductor region
+y.mesh loc=0.0400 spac=0.0020
+y.mesh loc=0.0500 spac=0.0030
+y.mesh loc=0.1000 spac=0.0100
+y.mesh loc=0.2000 spac=0.0200
+
+# Main drift region
+y.mesh loc=0.5000 spac=0.0500
+y.mesh loc=1.0000 spac=0.1000
+y.mesh loc=2.0000 spac=0.1500
+y.mesh loc=3.0000 spac=0.1500
+y.mesh loc=4.0000 spac=0.1000
+
+# n- / n+ junction
+y.mesh loc=4.9000 spac=0.0200
+y.mesh loc=4.9800 spac=0.0050
+y.mesh loc=5.0000 spac=0.0020
+
+# n+ drain region
+y.mesh loc=5.0500 spac=0.0100
+y.mesh loc=5.2000 spac=0.0300
+y.mesh loc=5.4000 spac=0.0200
+
+# Drain bottom
+y.mesh loc=5.4800 spac=0.0050
+y.mesh loc=5.5000 spac=0.0020
+
+
+# ============================================================
+# Semiconductor regions
+# ============================================================
+
+# ------------------------------------------------------------
+# Region 1: Local n- source mesa
+#
+# Width:
+#   x = 0.00 to 2.00 um
+#
+# Thickness:
+#   y = 0.00 to 0.03 um
+# ------------------------------------------------------------
+
+region num=1 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=0.00 y.max=0.03
+
+
+# ------------------------------------------------------------
+# Region 2: Main n- drift region
+# ------------------------------------------------------------
+
+region num=2 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=0.03 y.max=5.00
+
+
+# ------------------------------------------------------------
+# Region 3: n+ drain region
+# ------------------------------------------------------------
+
+region num=3 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=3.00 \
+       y.min=5.00 y.max=5.50
+
+
+# ============================================================
+# Al2O3/HfO2 gate-dielectric regions
+# ============================================================
+
+# ------------------------------------------------------------
+# Region 4: Top 5 nm Al2O3 interfacial layer
+#
+# Al2O3 is directly adjacent to beta-Ga2O3.
+#
+# Thickness:
+#   y = -0.005 to 0.000 um
+# ------------------------------------------------------------
+
+region num=4 material=Al2O3 \
+       x.min=0.000 x.max=2.005 \
+       y.min=-0.005 y.max=0.000
+
+
+# ------------------------------------------------------------
+# Region 5: Top 15 nm HfO2 layer
+#
+# Thickness:
+#   y = -0.020 to -0.005 um
+# ------------------------------------------------------------
+
+region num=5 material=HfO2 \
+       x.min=0.000 x.max=2.020 \
+       y.min=-0.020 y.max=-0.005
+
+
+# ------------------------------------------------------------
+# Region 6: Vertical 5 nm Al2O3 sidewall layer
+#
+# Semiconductor sidewall:
+#   x = 2.000 um
+#
+# Al2O3 outer boundary:
+#   x = 2.005 um
+# ------------------------------------------------------------
+
+region num=6 material=Al2O3 \
+       x.min=2.000 x.max=2.005 \
+       y.min=0.000 y.max=0.030
+
+
+# ------------------------------------------------------------
+# Region 7: Upper vertical/corner 15 nm HfO2 layer
+#
+# The region joins the top HfO2 to the recessed HfO2.
+# ------------------------------------------------------------
+
+region num=7 material=HfO2 \
+       x.min=2.005 x.max=2.020 \
+       y.min=-0.005 y.max=0.010
+
+
+# ------------------------------------------------------------
+# Region 8: Recessed horizontal 15 nm HfO2 layer
+#
+# Gate is at y = 0.010 um.
+# HfO2/Al2O3 interface is at y = 0.025 um.
+# ------------------------------------------------------------
+
+region num=8 material=HfO2 \
+       x.min=2.005 x.max=3.000 \
+       y.min=0.010 y.max=0.025
+
+
+# ------------------------------------------------------------
+# Region 9: Recessed horizontal 5 nm Al2O3 layer
+#
+# Al2O3 is directly adjacent to beta-Ga2O3.
+#
+# Thickness:
+#   y = 0.025 to 0.030 um
+# ------------------------------------------------------------
+
+region num=9 material=Al2O3 \
+       x.min=2.005 x.max=3.000 \
+       y.min=0.025 y.max=0.030
+
+
+# ------------------------------------------------------------
+# Region 10: Air/passivation above recessed gate
+# ------------------------------------------------------------
+
+region num=10 material=Air \
+       x.min=2.020 x.max=3.000 \
+       y.min=-0.020 y.max=0.010
+
+
+# ============================================================
+# Electrodes
+# ============================================================
+
+# ------------------------------------------------------------
+# Schottky source contact
+# ------------------------------------------------------------
+
+electrode name=source \
+          x.min=0.00 x.max=2.00 \
+          y.min=0.00 y.max=0.00
+
+
+# ------------------------------------------------------------
+# Top-gate section
+#
+# Effective overlap over source mesa:
+#   x = 1.80 to 2.00 um
+# ------------------------------------------------------------
+
+electrode name=gate \
+          x.min=1.80 x.max=2.00 \
+          y.min=-0.02 y.max=-0.02
+
+
+# ------------------------------------------------------------
+# Top gate corner connector
+# ------------------------------------------------------------
+
+electrode name=gate \
+          x.min=2.00 x.max=2.02 \
+          y.min=-0.02 y.max=-0.02
+
+
+# ------------------------------------------------------------
+# Vertical right-side gate
+# ------------------------------------------------------------
+
+electrode name=gate \
+          x.min=2.02 x.max=2.02 \
+          y.min=-0.02 y.max=0.01
+
+
+# ------------------------------------------------------------
+# Right recessed horizontal gate
+# ------------------------------------------------------------
+
+electrode name=gate \
+          x.min=2.02 x.max=3.00 \
+          y.min=0.01 y.max=0.01
+
+
+# ------------------------------------------------------------
+# Bottom drain electrode
+# ------------------------------------------------------------
+
+electrode name=drain bottom
+
+
+# ============================================================
+# Doping
+# ============================================================
+
+# Local n- source mesa
+doping uniform concentration=1e17 n.type region=1
+
+# Main n- drift layer
+doping uniform concentration=1e16 n.type region=2
+
+# n+ drain layer
+doping uniform concentration=2e18 n.type region=3
+
+
+# ============================================================
+# Material parameters
+# ============================================================
+
+# ------------------------------------------------------------
+# User-defined beta-Ga2O3
+# ------------------------------------------------------------
+
+material material=MY_GA2O3 \
+         user.group=semiconductor \
+         user.default=GaN \
+         eg300=4.80 \
+         affinity=4.00 \
+         permittivity=10.0 \
+         mun=200 \
+         mup=1 \
+         nc300=3.72e18 \
+         nv300=3.72e18 \
+         taun0=1e-8 \
+         taup0=1e-8 \
+         me.tunnel=0.28 \
+         mh.tunnel=0.28 \
+         d.tunnel=1e-6
+
+
+# ------------------------------------------------------------
+# Al2O3 interfacial layers: k = 9
+# ------------------------------------------------------------
+
+material region=4 permittivity=9.0
+material region=6 permittivity=9.0
+material region=9 permittivity=9.0
+
+
+# ------------------------------------------------------------
+# HfO2 high-k layers: k = 20
+# ------------------------------------------------------------
+
+material region=5 permittivity=20.0
+material region=7 permittivity=20.0
+material region=8 permittivity=20.0
+
+
+# ------------------------------------------------------------
+# Air/passivation
+# ------------------------------------------------------------
+
+material region=10 permittivity=1.0
+
+
+# ============================================================
+# Contact properties
+# ============================================================
+
+# Schottky source contact
+contact name=source \
+        workfun=4.8 \
+        surf.rec \
+        barrier
+
+# MOS gate metal
+contact name=gate \
+        workfun=4.2
+
+# Ohmic drain contact
+contact name=drain \
+        resistance=1e-6
+
+
+# ============================================================
+# Physical models
+# ============================================================
+
+models srh fermi ust ust.bl temperature=300 print
+
+
+# ============================================================
+# Numerical method
+# ============================================================
+
+method newton autonr maxtrap=10
+
+
+# ============================================================
+# TonyPlot output variables
+# ============================================================
+
+output \
+       con.band \
+       val.band \
+       band.param \
+       e.field \
+       ex.field \
+       ey.field \
+       e.mobility \
+       h.mobility \
+       e.velocity \
+       h.velocity \
+       j.electron \
+       j.hole \
+       j.total \
+       jx.electron \
+       jy.electron \
+       jx.hole \
+       jy.hole \
+       jx.total \
+       jy.total \
+       flowlines \
+       ust.prob
+
+
+quit
+
