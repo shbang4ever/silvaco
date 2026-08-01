@@ -4,7 +4,11 @@ A SILVACO ATLAS TCAD study of a **Schottky-source vertical static induction tran
 
 The proposed device uses gate-controlled Schottky-barrier modulation to regulate electron injection from the source. This architecture avoids the shallow p-type doping and deep gate recesses normally required in conventional SIT structures, making it especially attractive for ultra-wide-bandgap semiconductors such as β-Ga₂O₃.
 
-![Research poster](poster.png)
+<p align="center">
+  <img src="./ga2o3_vertical_sit_poster.png"
+       alt="Schottky Source β-Ga₂O₃ Vertical Static Induction Transistor Poster"
+       width="100%">
+</p>
 
 ## Project Overview
 
