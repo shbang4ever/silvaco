@@ -1,0 +1,237 @@
+go atlas
+
+# ============================================================
+# Mesh
+# ============================================================
+
+mesh space.mult=1.0
+
+# X mesh
+# gate_L(0.00-0.70) / source(0.60-1.40) / gate_R(1.30-2.00)
+# Source width = 0.80 um = 800 nm
+# Gate-source overlap = 0.10 um = 100 nm on each side
+
+x.mesh loc=0.00   spac=0.010
+x.mesh loc=0.40   spac=0.010
+
+# Left source edge
+x.mesh loc=0.58   spac=0.003
+x.mesh loc=0.60   spac=0.001
+x.mesh loc=0.62   spac=0.002
+
+# Left gate edge
+x.mesh loc=0.68   spac=0.002
+x.mesh loc=0.70   spac=0.001
+x.mesh loc=0.72   spac=0.003
+
+x.mesh loc=1.00   spac=0.010
+
+# Right gate edge
+x.mesh loc=1.28   spac=0.003
+x.mesh loc=1.30   spac=0.001
+x.mesh loc=1.32   spac=0.002
+
+# Right source edge
+x.mesh loc=1.38   spac=0.002
+x.mesh loc=1.40   spac=0.001
+x.mesh loc=1.42   spac=0.003
+
+x.mesh loc=1.60   spac=0.010
+x.mesh loc=2.00   spac=0.010
+
+# Y mesh
+y.mesh loc=-0.030 spac=0.002
+y.mesh loc=-0.020 spac=0.001
+
+y.mesh loc=0.000  spac=0.001
+y.mesh loc=0.030  spac=0.002
+
+y.mesh loc=0.050  spac=0.003
+y.mesh loc=0.100  spac=0.010
+y.mesh loc=0.200  spac=0.020
+
+y.mesh loc=0.500  spac=0.050
+y.mesh loc=1.000  spac=0.100
+y.mesh loc=2.000  spac=0.150
+y.mesh loc=3.000  spac=0.150
+y.mesh loc=4.000  spac=0.100
+
+y.mesh loc=4.900  spac=0.020
+y.mesh loc=4.980  spac=0.005
+y.mesh loc=5.000  spac=0.002
+
+y.mesh loc=5.050  spac=0.010
+y.mesh loc=5.200  spac=0.030
+y.mesh loc=5.400  spac=0.020
+
+y.mesh loc=5.480  spac=0.005
+y.mesh loc=5.500  spac=0.002
+
+
+# ============================================================
+# Regions (flat, mesa removed)
+# ============================================================
+
+# n-type Ga2O3 body (top injection layer + drift), uniform 5e16, full width, 5 um
+region num=1 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=0.00 y.max=5.00
+
+# n+ substrate
+region num=2 user.material=MY_GA2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=5.00 y.max=5.50
+
+# Al2O3, 30 nm, full width -- covers both the source pad and the gates
+region num=3 material=Al2O3 \
+       x.min=0.00 x.max=2.00 \
+       y.min=-0.03 y.max=0.00
+
+
+# ============================================================
+# Electrodes
+# ============================================================
+
+# 800 nm-wide centered Schottky source
+electrode name=source \
+          x.min=0.60 x.max=1.40 \
+          y.min=0.00 y.max=0.00
+
+# Gates remain unchanged
+electrode name=gate \
+          x.min=0.00 x.max=0.70 \
+          y.min=-0.03 y.max=-0.03
+
+electrode name=gate \
+          x.min=1.30 x.max=2.00 \
+          y.min=-0.03 y.max=-0.03
+
+electrode name=drain bottom
+
+
+# ============================================================
+# Doping
+# ============================================================
+
+doping uniform concentration=5e16 n.type region=1
+doping uniform concentration=2e18 n.type region=2
+
+
+# ============================================================
+# Material Parameters
+# ============================================================
+
+material material=MY_GA2O3 \
+         user.group=semiconductor \
+         user.default=GaN \
+         eg300=4.80 \
+         affinity=4.00 \
+         permittivity=10.0 \
+         mun=200 \
+         mup=1 \
+         nc300=3.72e18 \
+         nv300=3.72e18 \
+         taun0=1e-8 \
+         taup0=1e-8 \
+         me.tunnel=0.28 \
+         mh.tunnel=0.28 \
+         d.tunnel=1e-6
+
+material region=3 permittivity=9.0
+
+
+# ============================================================
+# Contacts
+# ============================================================
+
+contact name=source \
+        workfun=5.2 \
+        surf.rec \
+        barrier
+
+contact name=gate \
+        workfun=4.2
+
+contact name=drain \
+        resistance=1e-6
+
+
+# ============================================================
+# Physical Models and Numerical Method
+# ============================================================
+
+models srh fermi ust ust.bl fldmob temperature=300 print
+
+method newton autonr maxtrap=10
+
+
+# ============================================================
+# Output
+# ============================================================
+
+output con.band \
+       val.band \
+       band.param \
+       e.field \
+       ex.field \
+       ey.field \
+       e.mobility \
+       h.mobility \
+       e.velocity \
+       h.velocity \
+       j.electron \
+       j.hole \
+       j.total \
+       jx.electron \
+       jy.electron \
+       jx.hole \
+       jy.hole \
+       jx.total \
+       jy.total \
+       flowlines \
+       ust.prob
+
+# ============================================================
+# Transfer curve simulation
+# Fixed Vd = 15 V
+# Sweep Vg = 0 to 20 V
+# ============================================================
+
+solve init
+solve vsource=0 vgate=0 vdrain=0
+
+# Ramp drain voltage first to avoid convergence problem
+solve vdrain=0.01
+solve vdrain=0.1
+solve vdrain=0.5
+solve name=drain vdrain=1.0 vstep=0.5 vfinal=15.0
+
+# Log only the transfer curve data
+log outf=IDVG_O100_src.log
+
+# Save first point at Vg = 0 V, Vd = 15 V
+solve vgate=0.0
+
+# Sweep gate voltage
+solve name=gate vgate=0.1 vstep=0.1 vfinal=20.0
+
+log off
+
+# ============================================================
+# Plot transfer curve
+# ============================================================
+
+tonyplot IDVG_O100_src.log
+
+# ============================================================
+# End simulation
+# ============================================================
+quit
+
+
+
+
+
+
+
+
